@@ -1,0 +1,12 @@
+fastapi==0.115.2
+uvicorn[standard]==0.32.0
+PyMySQL==1.1.1
+SQLAlchemy==2.0.36
+pydantic==2.9.2
+python-dotenv==1.0.1
+sentence-transformers==3.2.1
+scikit-learn==1.5.2
+kafka-python==2.0.2
+loguru==0.7.2
+qdrant-client==1.9.1
+python-multipart
