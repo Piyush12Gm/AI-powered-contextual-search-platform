@@ -1,0 +1,80 @@
+services:
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: contextual-search-api
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:root@db:3306/lenskart
+      - KAFKA_BROKER=kafka:9092
+      - QDRANT_URL=http://qdrant:6333
+      - QDRANT_COLLECTION=products
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - CROSS_ENCODER_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2
+      - LOG_LEVEL=info
+    depends_on:
+      - db
+      - kafka
+      - qdrant
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: ./services/worker
+      dockerfile: Dockerfile
+    container_name: contextual-search-worker
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:root@db:3306/lenskart
+      - KAFKA_BROKER=kafka:9092
+      - LOG_LEVEL=info
+    depends_on:
+      - db
+      - kafka
+
+  db:
+    image: mysql:8.0
+    container_name: contextual-search-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=lenskart
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.4
+    container_name: contextual-search-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.4
+    container_name: contextual-search-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: contextual-search-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  mysqldata:
+  qdrant_data:
