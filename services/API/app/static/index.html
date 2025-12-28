@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LensKart Contextual Search</title>
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <h1>LensKart Contextual Search</h1>
+    <nav>
+      <button id="tab-search" class="tab active">Search</button>
+      <button id="tab-ingest" class="tab">Ingest CSV</button>
+      <button id="tab-metrics" class="tab">Metrics</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="search-view" class="view">
+      <form id="search-form" class="card">
+        <div class="form-row">
+          <label>Query</label>
+          <input type="text" id="query" placeholder="e.g. running shoes" required />
+        </div>
+        <div class="grid-2">
+          <div class="form-row">
+            <label>Category</label>
+            <input type="text" id="filter-category" placeholder="e.g. Footwear" />
+          </div>
+          <div class="form-row">
+            <label>Brand</label>
+            <input type="text" id="filter-brand" placeholder="e.g. Nike" />
+          </div>
+          <div class="form-row">
+            <label>Categories (comma-separated)</label>
+            <input type="text" id="filter-categories" placeholder="e.g. Footwear, Eyewear" />
+          </div>
+          <div class="form-row">
+            <label>Brands (comma-separated)</label>
+            <input type="text" id="filter-brands" placeholder="e.g. Nike, RayBan" />
+          </div>
+          <div class="form-row">
+            <label>Price Min</label>
+            <input type="number" id="filter-price-min" min="0" step="1" />
+          </div>
+          <div class="form-row">
+            <label>Price Max</label>
+            <input type="number" id="filter-price-max" min="0" step="1" />
+          </div>
+          <div class="form-row">
+            <label>Rating Min</label>
+            <input type="number" id="filter-rating-min" min="0" max="5" step="0.1" />
+          </div>
+          <div class="form-row">
+            <label>Top K</label>
+            <input type="number" id="top-k" min="1" max="50" step="1" value="20" />
+          </div>
+          <div class="form-row">
+            <label>Sort By</label>
+            <select id="sort-by">
+              <option value="relevance" selected>Relevance</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="rating_desc">Rating: High to Low</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Score Threshold</label>
+            <input type="number" id="score-threshold" min="0" max="1" step="0.01" placeholder="0.00" />
+          </div>
+          <div class="form-row">
+            <label style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="show-explanations" checked /> Show Explanations
+            </label>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn primary">Search</button>
+          <button type="button" id="clear-results" class="btn">Clear Results</button>
+          <span id="search-status" class="status"></span>
+        </div>
+      </form>
+
+      <section id="recent-searches" class="card"></section>
+      <section id="results" class="results"></section>
+    </section>
+
+    <section id="ingest-view" class="view hidden">
+      <form id="ingest-form" class="card">
+        <div class="form-row">
+          <label>Upload Products CSV</label>
+          <input type="file" id="csv-file" accept=".csv" />
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn primary">Ingest</button>
+          <span id="ingest-status" class="status"></span>
+        </div>
+        <p class="hint">Expected columns: title, description, category, brand, attributes (JSON), price, rating</p>
+      </form>
+
+      <form id="ingest-one-form" class="card">
+        <h2>Ingest Single Product</h2>
+        <div class="grid-2">
+          <div class="form-row"><label>Title</label><input type="text" id="one-title" required /></div>
+          <div class="form-row"><label>Category</label><input type="text" id="one-category" required /></div>
+          <div class="form-row"><label>Brand</label><input type="text" id="one-brand" /></div>
+          <div class="form-row"><label>Price</label><input type="number" id="one-price" step="0.01" required /></div>
+          <div class="form-row"><label>Rating</label><input type="number" id="one-rating" min="0" max="5" step="0.1" value="0" /></div>
+        </div>
+        <div class="form-row"><label>Description</label><textarea id="one-description" rows="3" required></textarea></div>
+        <div class="form-row"><label>Attributes (JSON)</label><textarea id="one-attributes" rows="3" placeholder='{"color":"blue","size":"M"}'></textarea></div>
+        <div class="actions"><button type="button" id="ingest-one-btn" class="btn primary">Ingest Product</button><span id="ingest-one-status" class="status"></span></div>
+      </form>
+    </section>
+
+    <section id="metrics-view" class="view hidden">
+      <div class="card">
+        <h2>API Metrics</h2>
+        <div id="metrics" class="metrics"></div>
+        <div class="actions">
+          <button id="refresh-metrics" class="btn">Refresh</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Powered by MySQL + Qdrant + Kafka + FastAPI</footer>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>
